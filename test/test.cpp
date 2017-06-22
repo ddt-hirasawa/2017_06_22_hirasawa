@@ -67,9 +67,9 @@ int main(int argc,const char* argv[])
 		//sort_tagを追加する条件
 		} else if(!text_copy[i].find(insert_place2)) {
 
-			change_text2 += text_copy[i].substr(22);							//22はinsert_place2の文字数 この後ろに名前のフリガナがある
-			change_text2 += " ";												//空白で苗字と名前を区切ります
 			change_text2 += text_copy[i + 1].substr(21);						//21はchange_text3の文字数 この後ろに苗字のフリガナがある
+			change_text2 += " ";												//空白で苗字と名前を区切ります
+			change_text2 += text_copy[i].substr(22);							//22はinsert_place2の文字数 この後ろに名前のフリガナがある
 
 			//先にストリームに挿入してソートタグを追加する
 			ofstream_fail << change_text2<< " \n";
