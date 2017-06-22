@@ -26,10 +26,11 @@ int main(int argc,const char* argv[])
 
 	int count_line = get_line(argv[1]);											//関数により行数を得る テキストの行数をカウントする
 
+	//ファイルが無い場合 は修正処理を行いません
+	if(count_line != -1) {
+
 	ifstream ifstream_fail(argv[1]);											//素データ アドレス 細井延明
 	ofstream ofstream_fail(argv[2]);											//出力ファイル名 コマンドライン引数で指定する
-
-	cout << argv[2];
 
 	const int change_line1 = 2;												//既存データを更新する行 0行目からスタートして実質3行目
 	const string change_text1("FN:ゼネテック）細井延明");						//既存データに会社名を追加
@@ -79,6 +80,10 @@ int main(int argc,const char* argv[])
 	for (int i = change_line3; i < count_line; i++) {
 
 		ofstream_fail << text_copy[i] << "\n";									//配列に格納されている1行分を改行文字を含めて書き込み
+	}
+
+	//正常に終了したことを確認するため表示します
+	cout << "修正が完了しました\n";
 	}
 
 	//正常終了
