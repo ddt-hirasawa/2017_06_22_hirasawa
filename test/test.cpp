@@ -32,14 +32,14 @@ int main(int argc,const char* argv[])
 	ifstream ifstream_fail(argv[1]);											//素データ アドレス 細井延明
 	ofstream ofstream_fail(argv[2]);											//出力ファイル名 コマンドライン引数で指定する
 
-	const int change_line1 = 2;												//既存データを更新する行 0行目からスタートして実質3行目
-	const string change_text1("FN:ゼネテック）細井延明");						//既存データに会社名を追加
+	string change_text1("FN:");													//既存データに会社名を追加 するファクターを定義
+	string set_text1("ゼネテック)");											//既存データに会社名を追加
 
-	const int change_line2 = 4;												//既存データに新たにソートタグを追加する行
-	const string change_text2("SORT-STRING:ゼネテック ノブアキ ホソイ");		//ソートタグを新たに追加する
+	string insert_place2("X-PHONETIC-FIRST-NAME:");								//この文字列を検出したならばsort_string	を追加する
 
-	const int change_line3 = 6;												//追加した行を反映させ実質7行目の文字列を指定する
-	const string change_text3("X-PHONETIC-LAST-NAME:ゼネテック）ホソイ");		//既存データに会社名を追加
+	string change_text2("SORT-STRING:ゼネテック ");								//ソートタグを新たに追加する
+
+	string change_text3("X-PHONETIC-LAST-NAME:");								//既存データに会社名を追加するファクターを定義
 
 	string text_copy[count_line];												//テキストファイルの文字列を行ごとに格納する配列
 
@@ -49,38 +49,39 @@ int main(int argc,const char* argv[])
 		getline(ifstream_fail, text_copy[i]);									//1行の終端部分 改行文字までをメモリに格納
 	}
 
-	//カウントした文字列分 ファイルを走査し書き込みを行う 修正仕様により変更する手前まで走査
-	for (int i = 0; i < change_line1; i++) {
+	//文字列の書き込みを行うためにループします
+	for(int i=0; i < count_line; i++) {
 
-		ofstream_fail << text_copy[i] << "\n";									//配列に格納されている1行分を改行文字を含めて書き込み
-	}
+		//会社名を追加する条件に合致するならば書き込み パターン1
+		if(!text_copy[i].find(change_text1)) {
 
-	//修正仕様により会社名を追加する変更を行います
-	ofstream_fail << change_text1 << "\n";
+			//FN: のところに会社名を追加します
+			text_copy[i].insert(3,set_text1);
 
-	//カウントした文字列分 ファイルを走査し書き込みを行う 修正仕様により変更する手前まで走査
-	for (int i = change_line1 + 1; i < change_line2; i++) {
+		//会社名を追加する条件に合致するならば書き込み パターン2
+		} else if(!text_copy[i].find(change_text3)) {
 
-		ofstream_fail << text_copy[i] << "\n";									//配列に格納されている1行分を改行文字を含めて書き込み
-	}
+			//X-PHONETIC-LAST-NAME: のところに会社名を追加します
+			text_copy[i].insert(21,set_text1);
 
-	//修正仕様によりソート文字列タグを追加します
-	ofstream_fail << change_text2 << "\n";
+		//sort_tagを追加する条件
+		} else if(!text_copy[i].find(insert_place2)) {
 
-	//カウントした文字列分 ファイルを走査し書き込みを行う 修正仕様により変更する手前まで走査
-	for (int i = change_line2; i < change_line3 - 1; i++) {
+			change_text2 += text_copy[i].substr(22);							//22はinsert_place2の文字数 この後ろに名前のフリガナがある
+			change_text2 += " ";												//空白で苗字と名前を区切ります
+			change_text2 += text_copy[i + 1].substr(21);						//21はchange_text3の文字数 この後ろに苗字のフリガナがある
 
-		ofstream_fail << text_copy[i] << "\n";									//配列に格納されている1行分を改行文字を含めて書き込み
-	}
+			//先にストリームに挿入してソートタグを追加する
+			ofstream_fail << change_text2<< " \n";
 
-	//修正仕様により会社名を追加する変更を行います
-	ofstream_fail << change_text3 << "\n";
+			//挿入したので素のソートタグに戻します
+			change_text2 = "SORT-STRING:ゼネテック ";
+		}
 
-	//カウントした文字列分 ファイルを走査し書き込みを行う 修正仕様により変更する手前まで走査
-	for (int i = change_line3; i < count_line; i++) {
+			//配列に格納されている文字列を書き込みます
+			ofstream_fail << text_copy[i] << "\n";
+		}
 
-		ofstream_fail << text_copy[i] << "\n";									//配列に格納されている1行分を改行文字を含めて書き込み
-	}
 
 	//正常に終了したことを確認するため表示します
 	cout << "修正が完了しました\n";
