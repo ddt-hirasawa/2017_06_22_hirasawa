@@ -19,32 +19,23 @@ int get_line(const char* tmp);
 
 int main(int argc,const char* argv[])
 {
-	//int count_line = get_line("origin.txt");									//関数により行数を得る テキストの行数をカウントする
-
-	//ifstream ifstream_fail("origin.txt");										//素データ アドレス 細井延明
-	//ofstream ofstream_fail("output.txt");										//出力ファイル名 コマンドライン引数で指定する
-
 	int count_line = get_line(argv[1]);											//関数により行数を得る テキストの行数をカウントする
 
 	//ファイルが無い場合 は修正処理を行いません
 	if(count_line != -1) {
 
-	ifstream ifstream_fail(argv[1]);											//素データ アドレス 細井延明
+	ifstream ifstream_fail(argv[1]);											//素データ アドレス 細井延明など
 	ofstream ofstream_fail(argv[2]);											//出力ファイル名 コマンドライン引数で指定する
 
 	string change_text1("N:");													//既存データに会社名を追加 するファクターを定義
-	string change_text11("ORG:");
-	string change_text111("株式会社");
+	string change_text11("ORG:");												//ORG の後に会社名がある
+	string change_text111("株式会社");											//前株 後株で処理を変えるため分割して定義する
 	string company_set("社名読み: ");											//会社名を設定するファクター
 	string company_search("グループ: ");										// \n 文字を検出できないのでその次の文字列を検出します
 	string set_text1(" ");														//既存データに会社名を追加
-
 	string insert_place2("X-PHONETIC-FIRST-NAME:");								//この文字列を検出したならばsort_string	を追加する
-
 	string change_text2("SORT-STRING:");										//ソートタグを新たに追加する
-
 	string change_text3("X-PHONETIC-LAST-NAME:");								//既存データに会社名を追加するファクターを定義
-
 	string text_copy[count_line];												//テキストファイルの文字列を行ごとに格納する配列
 
 	//カウントした文字列分 ファイルを走査し、メモリに一時的にファイルの中身をコピー
@@ -67,25 +58,31 @@ int main(int argc,const char* argv[])
 
 					int len1 = text_copy[j].rfind(change_text11);				//ORG読みまでの先端からの長さ
 
-					string tmp = change_text11;
-					tmp += change_text111;
+					string tmp = change_text11;									//前株の場合の文字列を決定
+					tmp += change_text111;										//N:株式会社での文字列を補完
 
+					//仮に前株の会社名を検出した場合
 					if(text_copy[j].rfind(tmp) != -1) {
 
+						//前株分の文字数を進めた位置から会社名を部分保管
 						set_text1 = text_copy[j].substr(len1 + change_text11.length() + change_text111.length());
 
+					//後株の場合
 					} else {
 
+						//N: 会社名 株式会社の場合その 行分の文字列から差分を出し会社名の位置を特定する
 						set_text1 = text_copy[j].substr(len1 + change_text11.length(),
 								text_copy[j].length() - change_text11.length() - change_text111.length());
 					}
 
+					//会社名を検出する処理の終了
 					break;
 				}
 			}
 
 			//N: のところに会社名を追加します
 			text_copy[i].insert(2,set_text1);
+			//会社名と名前と区切る ) の追加処理
 			text_copy[i].insert(2 + set_text1.length(),") ");
 
 
@@ -111,12 +108,13 @@ int main(int argc,const char* argv[])
 					//rfind は検出した文字の先頭を返すので検出した文字分進めるか戻す必要がある -2 は改行文字数
 					set_text1 = text_copy[j].substr(len1 + company_set.length(),len2 - len1 - company_search.length() - 2);
 
+					//社名読みの検出処理の終了
 					break;
 				}
 			}
 
-			change_text2 += set_text1;
-			change_text2 += " ";
+			change_text2 += set_text1;											//ソートストリングの文字列を構成していきます
+			change_text2 += " ";												//社名読みの後に空白を入れます
 			change_text2 += text_copy[i + 1].substr(21);						//21はchange_text3の文字数 この後ろに苗字のフリガナがある
 			change_text2 += " ";												//空白で苗字と名前を区切ります
 			change_text2 += text_copy[i].substr(22);							//22はinsert_place2の文字数 この後ろに名前のフリガナがある
